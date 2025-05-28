@@ -4,6 +4,13 @@ FROM python:3.11-slim-bullseye
 # Set the working directory in the container
 WORKDIR /MoneyPrinterTurbo
 
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    STREAMLIT_WATCHDOG_USE_POLLING=true \
+    STREAMLIT_SERVER_HEADLESS=true \
+    STREAMLIT_BROWSER_GATHERUSAGESTATS=false
+
 # 设置/MoneyPrinterTurbo目录权限为777
 RUN chmod 777 /MoneyPrinterTurbo
 
