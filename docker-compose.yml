@@ -1,6 +1,10 @@
 x-common-volumes: &common-volumes
   - ./:/MoneyPrinterTurbo
 
+networks:
+  dokploy:
+    external: true
+
 services:
   webui:
     build:
@@ -9,9 +13,12 @@ services:
     container_name: "moneyprinterturbo-webui"
     ports:
       - "8501:8501"
-    command: [ "streamlit", "run", "./webui/Main.py","--browser.serverAddress=127.0.0.1","--server.enableCORS=True","--browser.gatherUsageStats=False" ]
+    command: [ "streamlit", "run", "./webui/Main.py","--browser.serverAddress=0.0.0.0","--server.enableCORS=True","--browser.gatherUsageStats=False" ]
     volumes: *common-volumes
     restart: always
+    networks:
+      - dokploy
+
   api:
     build:
       context: .
@@ -22,3 +29,5 @@ services:
     command: [ "python3", "main.py" ]
     volumes: *common-volumes
     restart: always
+    networks:
+      - dokploy
