@@ -50,6 +50,3 @@ services:
     restart: always
     networks:
       - dokploy
-    volumes:
-      - ./nginx_logs:/var/log/nginx
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
