@@ -38,6 +38,7 @@ def save_config():
         _cfg["azure"] = azure
         _cfg["siliconflow"] = siliconflow
         _cfg["ui"] = ui
+        # _cfg["ui"]["hide_config"] = False
         f.write(toml.dumps(_cfg))
 
 
