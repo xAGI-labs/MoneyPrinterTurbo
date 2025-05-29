@@ -1,9 +1,11 @@
 import os
 import shutil
 import socket
-
+from dotenv import load_dotenv
 import toml
 from loguru import logger
+
+load_dotenv()
 
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 config_file = f"{root_dir}/config.toml"
@@ -43,22 +45,30 @@ def save_config():
 
 
 pexels_api_keys = os.getenv("PEXELS_API_KEYS")
-if pexels_api_keys:
-    pexels_api_keys = list(
-        filter(
-            lambda x: x.strip().strip("'").strip('"') != "",
-            pexels_api_keys.split("|"),
-        )
+if not pexels_api_keys:
+    raise RuntimeError("PEXELS_API_KEYS environment variable is not defined.")
+pexels_api_keys = list(
+    filter(
+        lambda x: x.strip().strip("'").strip('"') != "",
+        pexels_api_keys.split("|"),
     )
+)
 
 pixabay_api_keys = os.getenv("PIXABAY_API_KEYS")
-if pixabay_api_keys:
-    pixabay_api_keys = list(
-        filter(
-            lambda x: x.strip().strip("'").strip('"') != "",
-            pixabay_api_keys.split("|"),
-        )
+if not pixabay_api_keys:
+    raise RuntimeError("PIXABAY_API_KEYS environment variable is not defined.")
+pixabay_api_keys = list(
+    filter(
+        lambda x: x.strip().strip("'").strip('"') != "",
+        pixabay_api_keys.split("|"),
     )
+)
+
+logger.info(f"pixabay API keys: {len(pixabay_api_keys)} keys")
+logger.info(f"pexels API keys: {len(pexels_api_keys)} keys")
+
+print(f"pixabay API keys: {pixabay_api_keys} keys")
+print(f"pexels API keys: {pexels_api_keys} keys")
 
 
 _cfg = load_config()
