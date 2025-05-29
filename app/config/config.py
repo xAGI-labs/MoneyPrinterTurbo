@@ -42,8 +42,20 @@ def save_config():
         f.write(toml.dumps(_cfg))
 
 
+pexels_api_keys = os.getenv("PEXELS_API_KEYS")
+if pexels_api_keys:
+    pexels_api_keys = pexels_api_keys.split(",")
+
+pixabay_api_keys = os.getenv("PIXABAY_API_KEYS")
+if pixabay_api_keys:
+    pixabay_api_keys = pixabay_api_keys.split(",")
+
+
 _cfg = load_config()
 app = _cfg.get("app", {})
+# update app config with pixabay and pexels API keys
+_cfg["app"]["pixabay_api_keys"] = pixabay_api_keys
+_cfg["app"]["pexels_api_keys"] = pexels_api_keys
 whisper = _cfg.get("whisper", {})
 proxy = _cfg.get("proxy", {})
 azure = _cfg.get("azure", {})
