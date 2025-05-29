@@ -9,7 +9,7 @@
 /app/utils/__pycache__/
 /*/__pycache__/*
 .vscode
-/**/.streamlit
+# /**/.streamlit
 __pycache__
 logs/
 .env
