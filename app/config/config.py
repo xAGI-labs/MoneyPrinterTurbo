@@ -44,11 +44,21 @@ def save_config():
 
 pexels_api_keys = os.getenv("PEXELS_API_KEYS")
 if pexels_api_keys:
-    pexels_api_keys = pexels_api_keys.split(",")
+    pexels_api_keys = list(
+        filter(
+            lambda x: x.strip().strip("'").strip('"') != "",
+            pexels_api_keys.split(","),
+        )
+    )
 
 pixabay_api_keys = os.getenv("PIXABAY_API_KEYS")
 if pixabay_api_keys:
-    pixabay_api_keys = pixabay_api_keys.split(",")
+    pixabay_api_keys = list(
+        filter(
+            lambda x: x.strip().strip("'").strip('"') != "",
+            pixabay_api_keys.split(","),
+        )
+    )
 
 
 _cfg = load_config()
