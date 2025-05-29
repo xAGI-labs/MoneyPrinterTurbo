@@ -47,7 +47,7 @@ if pexels_api_keys:
     pexels_api_keys = list(
         filter(
             lambda x: x.strip().strip("'").strip('"') != "",
-            pexels_api_keys.split(","),
+            pexels_api_keys.split("|"),
         )
     )
 
@@ -56,7 +56,7 @@ if pixabay_api_keys:
     pixabay_api_keys = list(
         filter(
             lambda x: x.strip().strip("'").strip('"') != "",
-            pixabay_api_keys.split(","),
+            pixabay_api_keys.split("|"),
         )
     )
 
