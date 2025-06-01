@@ -988,7 +988,7 @@ if start_button:
     video_files = result.get("videos", [])
     st.success(tr("Video Generation Completed"))
     st.toast(tr("Video Generation Completed!"), icon="✅")
-    play_beep()
+    # play_beep()
 
     try:
         if video_files:
@@ -1006,6 +1006,12 @@ if start_button:
             )
             with open(video_path, "rb") as f:
                 video_bytes = f.read()
+            # Clean up the video file after reading
+            try:
+                os.remove(video_path)
+                logger.info(f"Deleted video file after serving: {video_path}")
+            except Exception as cleanup_err:
+                logger.warning(f"Could not delete video file: {video_path}, error: {cleanup_err}")
             b64 = base64.b64encode(video_bytes).decode()
             with st.container(border=True):
                 st.markdown(f"### 🎬 {video_options[selected_video_idx]}")
