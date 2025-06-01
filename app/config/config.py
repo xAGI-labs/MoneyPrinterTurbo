@@ -67,15 +67,28 @@ pixabay_api_keys = list(
 logger.info(f"pixabay API keys: {len(pixabay_api_keys)} keys")
 logger.info(f"pexels API keys: {len(pexels_api_keys)} keys")
 
-print(f"pixabay API keys: {pixabay_api_keys} keys")
-print(f"pexels API keys: {pexels_api_keys} keys")
-
 
 _cfg = load_config()
 app = _cfg.get("app", {})
 # update app config with pixabay and pexels API keys
 _cfg["app"]["pixabay_api_keys"] = pixabay_api_keys
 _cfg["app"]["pexels_api_keys"] = pexels_api_keys
+
+# load openai_key api_base and model from environment variables
+openai_key = os.getenv("OPENAI_API_KEY")
+if not openai_key:
+    raise RuntimeError("OPENAI_API_KEY environment variable is not defined.")
+openai_api_base = os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1")
+if not openai_api_base:
+    raise RuntimeError("OPENAI_API_BASE environment variable is not defined.")
+openai_model = os.getenv("OPENAI_API_MODEL", "gpt-4o-mini")
+if not openai_model:
+    raise RuntimeError("OPENAI_API_MODEL environment variable is not defined.")
+
+_cfg["app"]["openai_api_key"] = openai_key
+_cfg["app"]["openai_base_url"] = openai_api_base
+_cfg["app"]["openai_model_name"] = openai_model
+
 whisper = _cfg.get("whisper", {})
 proxy = _cfg.get("proxy", {})
 azure = _cfg.get("azure", {})
