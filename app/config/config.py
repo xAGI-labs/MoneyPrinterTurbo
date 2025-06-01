@@ -84,10 +84,14 @@ if not openai_api_base:
 openai_model = os.getenv("OPENAI_API_MODEL", "gpt-4o-mini")
 if not openai_model:
     raise RuntimeError("OPENAI_API_MODEL environment variable is not defined.")
+hide_settings_panel = os.getenv("HIDE_SETTINGS_PANEL_FOR_ALL_USERS", "false").strip().lower() == "true"
+hide_all_logs = os.getenv("HIDE_LOG_FOR_ALL_USERS", "false").strip().lower() == "true"
 
+_cfg["app"]["hide_config"] = hide_settings_panel
 _cfg["app"]["openai_api_key"] = openai_key
 _cfg["app"]["openai_base_url"] = openai_api_base
 _cfg["app"]["openai_model_name"] = openai_model
+_cfg["ui"]["hide_log"] = hide_all_logs
 
 whisper = _cfg.get("whisper", {})
 proxy = _cfg.get("proxy", {})
@@ -96,7 +100,7 @@ siliconflow = _cfg.get("siliconflow", {})
 ui = _cfg.get(
     "ui",
     {
-        "hide_log": False,
+        "hide_log": hide_all_logs,
     },
 )
 
