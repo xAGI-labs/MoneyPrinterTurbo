@@ -2,6 +2,7 @@ import os
 import platform
 import sys
 from uuid import uuid4
+import base64
 
 import streamlit as st
 from loguru import logger
@@ -907,6 +908,20 @@ with right_panel:
         with stroke_cols[1]:
             params.stroke_width = st.slider(tr("Stroke Width"), 0.0, 10.0, 1.5)
 
+def play_beep():
+    beep_script = """
+    <script>
+    var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    var oscillator = audioCtx.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // 880 Hz
+    oscillator.connect(audioCtx.destination);
+    oscillator.start();
+    setTimeout(function(){ oscillator.stop(); }, 200);
+    </script>
+    """
+    st.components.v1.html(beep_script, height=0, width=0)
+
 start_button = st.button(tr("Generate Video"), use_container_width=True, type="primary")
 if start_button:
     config.save_config()
@@ -956,12 +971,14 @@ if start_button:
 
     logger.add(log_received)
 
-    st.toast(tr("Generating Video"))
+    st.toast(tr("Generating Video..."), icon="⏳")
     logger.info(tr("Start Generating Video"))
     logger.info(utils.to_json(params))
     scroll_to_bottom()
 
     result = tm.start(task_id=task_id, params=params)
+    st.toast(tr("Processing..."), icon="🔄")
+
     if not result or "videos" not in result:
         st.error(tr("Video Generation Failed"))
         logger.error(tr("Video Generation Failed"))
@@ -970,16 +987,62 @@ if start_button:
 
     video_files = result.get("videos", [])
     st.success(tr("Video Generation Completed"))
+    st.toast(tr("Video Generation Completed!"), icon="✅")
+    play_beep()
+
     try:
         if video_files:
-            player_cols = st.columns(len(video_files) * 2 + 1)
-            for i, url in enumerate(video_files):
-                player_cols[i * 2 + 1].video(url)
-    except Exception:
-        pass
+            video_options = [f"{tr('Generated Video')} #{i+1}" for i in range(len(video_files))]
+            selected_video_idx = 0
+            if len(video_files) > 1:
+                selected_video_idx = st.selectbox(
+                    tr("Select a video to preview"),
+                    options=range(len(video_files)),
+                    format_func=lambda x: video_options[x],
+                )
+            video_path = video_files[selected_video_idx]
+            logger.info(
+                f"Displaying video: {video_path} ({video_options[selected_video_idx]})"
+            )
+            with open(video_path, "rb") as f:
+                video_bytes = f.read()
+            b64 = base64.b64encode(video_bytes).decode()
+            with st.container(border=True):
+                st.markdown(f"### 🎬 {video_options[selected_video_idx]}")
+                st.video(video_bytes)
+                st.markdown(
+                    '<a href="data:video/mp4;base64,' + b64 + '" download="test_video.mp4" style="display:inline-block;padding:8px 16px;background:#4CAF50;color:white;border-radius:6px;text-decoration:none;font-weight:bold;margin-top:8px;">⬇️ ' + tr('Download Video') + '</a>',
+                    unsafe_allow_html=True,
+                )
+    except Exception as e:
+        st.error(tr("Error displaying video"))
+        logger.error(str(e))
 
-    open_task_folder(task_id)
     logger.info(tr("Video Generation Completed"))
     scroll_to_bottom()
+
+# --- Test Output Viewer Button ---
+# test_video_path = os.path.join(root_dir, "storage", "tasks", "5f10c123-f99c-4bc6-a0b7-3bd3b708c8af", "combined-1.mp4")
+# print(f"Test video path: {test_video_path}")
+# print("List of all files in the storage directory:")
+# import os
+# for root, dirs, files in os.walk(os.path.join(root_dir, "storage")):
+#     for file in files:
+#         print(os.path.join(root, file))
+
+# if st.button("Test Output Viewer", type="secondary"):
+#     if os.path.exists(test_video_path):
+#         with open(test_video_path, "rb") as f:
+#             video_bytes = f.read()
+#         b64 = base64.b64encode(video_bytes).decode()
+#         with st.container(border=True):
+#             st.markdown(f"### 🎬 {tr('Test Video')}")
+#             st.video(video_bytes)
+#             st.markdown(
+#                 '<a href="data:video/mp4;base64,' + b64 + '" download="test_video.mp4" style="display:inline-block;padding:8px 16px;background:#4CAF50;color:white;border-radius:6px;text-decoration:none;font-weight:bold;margin-top:8px;">⬇️ ' + tr('Download Video') + '</a>',
+#                 unsafe_allow_html=True,
+#             )
+#     else:
+#         st.error(f"Test video not found: {test_video_path}")
 
 config.save_config()
